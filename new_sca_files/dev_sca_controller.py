@@ -47,7 +47,7 @@ class sca_cont():
         uhal.disableLogging()
     
         #connectionFilePath = "Real_connections.xml"
-        connectionFilePath = "../Real_connections.xml" #../Real_connections1.xml
+        connectionFilePath = "../../Real_connections.xml" #../Real_connections1.xml
         deviceId = "KCU105real"
     
         # PART 2: Creating the HwInterface
@@ -208,7 +208,7 @@ class sca_chip(sca_cont):
         rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
         return rxpayload
         
-    def write_gpio_output(self, value)
+    def write_gpio_output(self, value):
         print("get ID!")
         enable_ADC(self)
         print("reading ID")
@@ -217,7 +217,7 @@ class sca_chip(sca_cont):
         rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, value, self.sca_addr, 0)
         return rxpayload
         
-    def read_gpio_output(self)
+    def read_gpio_output(self):
         print("get ID!")
         enable_ADC(self)
         print("reading ID")
