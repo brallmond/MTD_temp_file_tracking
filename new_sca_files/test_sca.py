@@ -1,45 +1,60 @@
-from dev_sca_controller import *
+from random import randint
+from sca_controller import *
 
-foo = sca_chip()
+def test_on(sca_chip):
+  # tested, works
+  sca_chip.send_connect()
+  sca_chip.get_ID()
+  sca_chip.check_read_write()
 
-# main
-#foo.send_connect()
-#foo.enable_ADC()
+def test_get_ID_explicitly(sca_chip):
+  # tested, works
+  sca_chip.send_connect()
+  reg = SCA_Register.CTRL_R_ID.value
+  # read ID without enabling ADC (receive error)
+  sca_chip.send_command_passthrough(reg.Channel, reg.Length, reg.CMD, reg.Data)
+  # enable ADC
+  sca_chip.enable_ADC()
+  # read ID now with ADC enabled
+  sca_chip.send_command_passthrough(reg.Channel, reg.Length, reg.CMD, reg.Data)
 
-# test I2C enable
-#for i in range(1,16):
-#  print(i)
-#  foo.enable_I2C_channel(i)
 
-# test ON
-foo.send_connect()
-foo.get_ID()
-foo.check_read_write()
+def test_read_write_three_registers(sca_chip):
+  # tested (once), works
+  sca_chip.write_control_reg("CRB", randint(1,255))
+  sca_chip.read_control_reg("CRB")
+  sca_chip.write_control_reg("CRC", randint(1,255))
+  sca_chip.read_control_reg("CRC")
+  sca_chip.write_control_reg("CRD", randint(1,255))
+  sca_chip.read_control_reg("CRD")
+ 
 
-# test get_ID explicitly
-#foo.send_connect()
-#reg = SCA_Register.CTRL_R_ID.value
-# read ID without enabling ADC
-#foo.send_command_passthrough(reg.Channel, reg.Length, reg.CMD, reg.Data)
-# enable ADC
-#foo.enable_ADC()
-# read ID now with ADC enabled
-#foo.send_command_passthrough(reg.Channel, reg.Length, reg.CMD, reg.Data)
+def test_read_and_reset_SEU(sca_chip):
+  # tested, works (only ever read zero in the SEU counter)
+  sca_chip.read_SEU() 
+  sca_chip.reset_SEU() 
 
-# display errors
-#foo.make_command_error()
-#foo.make_channel_error()
 
-# test read-write three registers
-#foo.write_control_reg("CRB", 1)
-#foo.read_control_reg("CRB")
-#foo.write_control_reg("CRC", 2)
-#foo.read_control_reg("CRC")
-#foo.write_control_reg("CRD", 3)
-#foo.read_control_reg("CRD")
+def test_I2C_enable(sca_chip):
+  # tested, works
+  for i in range(1, 16):
+    sca_chip.enable_I2C_channel(i)
 
-# test read and reset SEU
-#foo.read_SEU()
-#foo.reset_SEU()
+
+def test_make_errors(sca_chip):
+  sca_chip.make_command_error()
+  sca_chip.make_channel_error()
+
+if __name__ == "__main__":
+
+  chippy = sca_chip()
+  
+  print("Hi, I'm chippy, your SCA chip! I'm gonna run some tests now...")
+  #test_on(chippy)
+  #test_get_ID_explicitly(chippy)
+  #test_read_write_three_registers(chippy)
+  #test_read_and_reset_SEU(chippy)
+  #test_I2C_enable(chippy)
+  test_make_errors(sca_chip)
 
 
