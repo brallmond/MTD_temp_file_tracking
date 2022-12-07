@@ -157,6 +157,7 @@ class sca_chip(sca_cont):
         rxpayload = sca_chip.write_control_reg(Reg_ID, payload) 
         return rxpayload
 
+
     def enable_channel(self, channel_to_enable):
         enabled_channel = eval(f"Enable_from_Control_Reg.{channel_to_enable}.value")
         print(f"enabling channel {channel_to_enable} through register {enabled_channel.Register}")
@@ -210,7 +211,7 @@ class sca_chip(sca_cont):
         
     def write_gpio_output(self, value):
         print("get ID!")
-        enable_ADC(self)
+        sca_chip.enable_ADC(self)
         print("reading ID")
         reg  = SCA_Register.GPIO_W_DATAOUT.value
         # works with zero or one in data field, but manual specifies data should be one
@@ -219,7 +220,7 @@ class sca_chip(sca_cont):
         
     def read_gpio_output(self):
         print("get ID!")
-        enable_ADC(self)
+        sca_chip.enable_ADC(self)
         print("reading ID")
         reg  = SCA_Register.GPIO_R_DATAOUT.value
         # works with zero or one in data field, but manual specifies data should be one
@@ -229,12 +230,13 @@ class sca_chip(sca_cont):
 
     def get_ID(self): 
         print("get ID!")
-        enable_ADC(self)
+        sca_chip.enable_ADC(self)
         print("reading ID")
         reg  = SCA_Register.CTRL_R_ID.value
         # works with zero or one in data field, but manual specifies data should be one
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-        return rxpayload
+        #rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
+        #return rxpayload
 
 
     def send_connect(self):
@@ -261,35 +263,47 @@ class sca_chip(sca_cont):
         print("make error 0x4 = 0b0000 0100!")
         print("supply command to read SCA ID for V1 of the chip")
         reg  = SCA_Register.CTRL_R_ID.value
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, 0x91, reg.Data, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, reg.Channel, reg.Length, 0x91, reg.Data, self.sca_addr, 0)
 
 
     def make_channel_error(self):
         print("make error 0x20 = 0b0010 0000!")
         print("supply channel 0x13 to SCA ID command instead of 0x14")
         reg  = SCA_Register.CTRL_R_ID.value
-        rxpayload = sca_chip.send_command(self, 0x13, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, 0x13, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
     def send_command_passthrough(self, channel, length, command, data):
         print("sending user command")
-        rxpayload = sca_chip.send_command(self, channel, length, command, data, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, channel, length, command, data, self.sca_addr, 0)
+
+
+    def check_error(self, rxpayload):
+        print("checking payload for error flags")
+        assert len(rxpayload) == 2, f"rxpayload size must equal 2, it is {len(rxpayload)}"
+        header = rxpayload[0]
+        #data   = rxpayload[1]
+        err  = (header & (0xff << 24)) >> 24
+        print(f"error code is : {hex(err)}")
+        #leng = (header & (0xff << 16)) >> 16
+        #ch   = (header & (0xff << 8))  >> 8
+        #com  = header &  0xff
+        #print("\t--Received (rx)") 
+        #print("\t err : leng : ch : Tr.ID : data")
+        #print(f"\t {hex(err)} : {hex(leng)} : {hex(ch)} : {hex(com)} : {hex(data)}")
 
 
 
 foo = sca_chip()
 
 # main
-foo.send_connect()
-foo.enable_ADC()
+#foo.send_connect()
+#foo.enable_ADC()
 
 # test I2C enable
-for i in range(1,16):
-  print(i)
-  foo.enable_I2C_channel(i)
+#for i in range(1,16):
+#  print(i)
+#  foo.enable_I2C_channel(i)
 
 # test ON
 #foo.send_connect()
@@ -297,7 +311,7 @@ for i in range(1,16):
 #foo.check_read_write()
 
 # test get_ID explicitly
-#foo.send_connect9)
+#foo.send_connect()
 #reg = SCA_Register.CTRL_R_ID.value
 # read ID without enabling ADC
 #foo.send_command_passthrough(reg.Channel, reg.Length, reg.CMD, reg.Data)
