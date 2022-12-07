@@ -16,6 +16,9 @@ class Operation(IntEnum):
     Write = 1
     ReadWrite = 2
 
+class ErrorFlags(Enum):
+    { 0 : "Generic error flag",
+      1 : "Invalid channel request",} 
 
 class Flag(IntEnum):
     """
