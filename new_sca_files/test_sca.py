@@ -95,14 +95,14 @@ if __name__ == "__main__":
     test_read_and_reset_SEU,
   ]
 
-  check_test = [
+  test_on = [
     test_read_ID,
     test_read_write_three_registers,
   ]
 
   list_to_test = list_of_tests # "make errors" tests don't work in this list
   list_to_test = SEU_test
-  list_to_test = check_test
+  list_to_test = test_on
   list_to_test = error_tests
 
   for i,test in enumerate(list_to_test):
