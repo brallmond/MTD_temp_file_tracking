@@ -1,13 +1,6 @@
 from random import randint
 from sca_controller import *
 
-def test_on(sca_chip):
-  # tested, works
-  sca_chip.send_connect()
-  test_read_ID(sca_chip)
-  sca_chip.write_control_reg("CRB", randint(1,255))
-  return sca_chip.read_control_reg("CRB")
-
 def test_read_ID(sca_chip):
   # tested, works
   sca_chip.send_connect()
@@ -15,7 +8,7 @@ def test_read_ID(sca_chip):
   return sca_chip.read_ID()
 
 def test_read_write_three_registers(sca_chip):
-  # tested (once), works
+  # tested, works
   sca_chip.send_connect()
   sca_chip.write_control_reg("CRB", randint(1,255))
   sca_chip.read_control_reg("CRB")
@@ -28,6 +21,7 @@ def test_read_write_three_registers(sca_chip):
 def test_read_and_reset_SEU(sca_chip):
   # tested, works (only ever read zero in the SEU counter)
   # broken!
+  sca_chip.send_reset()
   sca_chip.send_connect()
   sca_chip.read_SEU() 
   return sca_chip.reset_SEU() 
@@ -60,6 +54,7 @@ def test_make_channel_error(sca_chip):
 
 
 def test_make_length_error(sca_chip):
+  # unfinished, having trouble making a length error
   print("make error 0x10 = 0b0100 0000!")
   reg = SCA_Register.CTRL_R_ID.value
   return sca_chip.send_command_passthrough(0x13, reg.Length, reg.CMD, reg.Data)
@@ -79,7 +74,6 @@ if __name__ == "__main__":
   print("Hi, I'm chippy, your SCA chip! I'm gonna run some tests now...")
 
   list_of_tests = [ 
-    test_on,
     test_read_ID,
     test_read_write_three_registers,
     test_read_and_reset_SEU, #broken!
@@ -91,16 +85,31 @@ if __name__ == "__main__":
   ]
 
   error_tests = [
-    test_on,
+    test_read_ID,
     test_make_command_error,
     test_make_channel_error,
-    test_make_length_error,
+    #test_make_length_error, #unfinished!
   ]
 
-  list_to_test = list_of_tests
+  SEU_test = [
+    test_read_and_reset_SEU,
+  ]
+
+  check_test = [
+    test_read_ID,
+    test_read_write_three_registers,
+  ]
+
+  list_to_test = list_of_tests # "make errors" tests don't work in this list
+  list_to_test = SEU_test
+  list_to_test = check_test
+  list_to_test = error_tests
 
   for i,test in enumerate(list_to_test):
-    print(CMDLINECOLOR.INFO + f"########## TEST {i} ##########" + CMDLINECOLOR.RESET)
+    print(CMDLINECOLOR.INFO + 
+          f"########## TEST {i} ##########" + '\n' +
+          f"### {test} ###" + 
+          CMDLINECOLOR.RESET)
     rxpayload = test(chippy)
     chippy.check_error(rxpayload)
 
