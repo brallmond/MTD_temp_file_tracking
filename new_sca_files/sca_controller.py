@@ -162,11 +162,6 @@ class sca_chip(sca_cont):
         return sca_chip.write_control_reg(self, enabled_channel.Register, data)
 
     
-    def enable_ADC(self):
-        print("enabling ADC")
-        return sca_chip.enable_channel(self, "ENADC")
-
-
     def enable_I2C_channel(self, channel):
         # expects an integer from 0 to 15
         print(f"enabling I2C channel {channel}")
@@ -188,16 +183,27 @@ class sca_chip(sca_cont):
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
+    def send_command_passthrough(self, channel, length, command, data):
+        print("sending user command")
+        return sca_chip.send_command(self, channel, length, command, data, self.sca_addr, 0)
+
+
     def reset_SEU(self):
         print("reset SEU!")
         reg  = SCA_Register.CTRL_C_SEU.value
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
+    def enable_ADC(self):
+        print("enabling ADC")
+        return sca_chip.enable_channel(self, "ENADC")
+
+
     def read_SEU(self):
         print("read SEU!")
         reg  = SCA_Register.CTRL_R_SEU.value
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
+
         
     def write_gpio_output(self, value):
         print("get ID!")
@@ -206,6 +212,7 @@ class sca_chip(sca_cont):
         reg  = SCA_Register.GPIO_W_DATAOUT.value
         # works with zero or one in data field, but manual specifies data should be one
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, value, self.sca_addr, 0)
+
         
     def read_gpio_output(self):
         print("get ID!")
@@ -255,11 +262,6 @@ class sca_chip(sca_cont):
         print("supply channel 0x13 to SCA ID command instead of 0x14")
         reg  = SCA_Register.CTRL_R_ID.value
         return sca_chip.send_command(self, 0x13, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-
-
-    def send_command_passthrough(self, channel, length, command, data):
-        print("sending user command")
-        return sca_chip.send_command(self, channel, length, command, data, self.sca_addr, 0)
 
 
     def check_error(self, rxpayload):
