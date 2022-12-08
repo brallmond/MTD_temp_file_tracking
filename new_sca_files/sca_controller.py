@@ -218,27 +218,27 @@ class sca_chip(sca_cont):
         return sca_chip.enable_channel(self, "ENADC")
 
 
+    def enable_GPIO(self):
+        print("enabling GPIO")
+        return sca_chip.enable_channel(self, "ENGPIO")
+
+
     def read_SEU(self):
         print("read SEU!")
         reg  = SCA_Register.CTRL_R_SEU.value
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
-     def write_gpio_output(self, value):
-        print("get ID!")
-        sca_chip.enable_ADC(self)
-        print("reading ID")
+    def write_GPIO(self, value):
+        sca_chip.enable_GPIO(self)
+        print(f"write {value} to GPIO!")
         reg  = SCA_Register.GPIO_W_DATAOUT.value
-        # works with zero or one in data field, but manual specifies data should be one
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, value, self.sca_addr, 0)
 
        
-    def read_gpio_output(self):
-        print("get ID!")
-        sca_chip.enable_ADC(self)
-        print("reading ID")
+    def read_GPIO(self):
+        print("read GPIO!")
         reg  = SCA_Register.GPIO_R_DATAOUT.value
-        # works with zero or one in data field, but manual specifies data should be one
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
         
 
@@ -256,7 +256,7 @@ class sca_chip(sca_cont):
         reg  = SCA_Register.CTRL_W_CRD.value
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 1)
 
-
+# consider deleting, this is effectively implemented in the test_sca.py script with random read/writes of channels
     def check_read_write(self):
         data = random.randint(1,9)
         print(f"check connection with write read of {data} to CRB")
