@@ -4,19 +4,15 @@ from sca_controller import *
 def test_on(sca_chip):
   # tested, works
   sca_chip.send_connect()
-  sca_chip.get_ID()
-  sca_chip.check_read_write()
+  test_read_ID(sca_chip)
+  sca_chip.write_control_reg("CRB", randint(1,255))
+  sca_chip.read_control_reg("CRB")
 
-def test_get_ID_explicitly(sca_chip):
+def test_read_ID(sca_chip):
   # tested, works
   sca_chip.send_connect()
-  reg = SCA_Register.CTRL_R_ID.value
-  # read ID without enabling ADC (receive error)
-  sca_chip.send_command_passthrough(reg.Channel, reg.Length, reg.CMD, reg.Data)
-  # enable ADC
   sca_chip.enable_ADC()
-  # read ID now with ADC enabled
-  sca_chip.send_command_passthrough(reg.Channel, reg.Length, reg.CMD, reg.Data)
+  sca_chip.read_ID()
 
 
 def test_read_write_three_registers(sca_chip):
@@ -81,7 +77,7 @@ if __name__ == "__main__":
   
   print("Hi, I'm chippy, your SCA chip! I'm gonna run some tests now...")
   #test_on(chippy)
-  #test_get_ID_explicitly(chippy)
+  #test_read_ID(chippy)
   #test_read_write_three_registers(chippy)
   #test_read_and_reset_SEU(chippy) #broken!
   #test_I2C_enable(chippy)

@@ -240,13 +240,11 @@ class sca_chip(sca_cont):
         print("read GPIO!")
         reg  = SCA_Register.GPIO_R_DATAOUT.value
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-        
 
-    def get_ID(self): 
-        print("get ID!")
-        sca_chip.enable_ADC(self)
-        print("reading ID")
-        reg  = SCA_Register.CTRL_R_ID.value
+
+    def read_ID(self):
+        print("read ID!")
+        reg = SCA_Register.CTRL_R_ID.value        
         # works with zero or one in data field, but manual specifies data should be one
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
@@ -255,18 +253,6 @@ class sca_chip(sca_cont):
         print("send connect!")
         reg  = SCA_Register.CTRL_W_CRD.value
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 1)
-
-# consider deleting, this is effectively implemented in the test_sca.py script with random read/writes of channels
-    def check_read_write(self):
-        data = random.randint(1,9)
-        print(f"check connection with write read of {data} to CRB")
-        print(f"send {data} to CTRL_W_CRB")
-        reg = SCA_Register.CTRL_W_CRB.value
-        write_data = data << reg.Offset
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, write_data, self.sca_addr, 0)
-        print("read data with CTRL_R_CRB")
-        reg = SCA_Register.CTRL_R_CRB.value
-        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
     def make_command_error(self):
