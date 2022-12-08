@@ -165,7 +165,7 @@ class sca_chip(sca_cont):
     def enable_I2C_channel(self, channel):
         # expects an integer from 0 to 15
         print(f"enabling I2C channel {channel}")
-        assert channel > 0 and channel < 16, f"channel must be > 0 and < 16, it is {channel}"
+        assert channel >= 0 and channel < 16, f"channel must be >= 0 and < 16, it is {channel}"
         I2C_to_enable = f"ENI2C{hex(channel)[-1].upper()}"
         return sca_chip.enable_channel(self, I2C_to_enable)
 
@@ -198,9 +198,9 @@ class sca_chip(sca_cont):
         length_trim_error_binary = len(trim_error_binary)
         # make list of indices where error bit is on
         index_where_on = []
-        index_where_on = [length_trim_error_binary-i for i in range(length_trim_error_binary) if trim_error_binary[i] == "1"]
+        index_where_on = [length_trim_error_binary-1-i for i in range(length_trim_error_binary) if trim_error_binary[i] == "1"]
         for index in index_where_on:
-          print(Indicators.ERROR + ErrorFlags[index] + Indicators.RESET)
+          print(CMDLINECOLOR.ERROR + ErrorFlags[index] + CMDLINECOLOR.RESET)
 
 
     def send_command_passthrough(self, channel, length, command, data):
