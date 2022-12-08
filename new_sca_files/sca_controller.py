@@ -138,6 +138,12 @@ class sca_chip(sca_cont):
     def __init__(self):
         self.dummy_sca_chip = sca_cont(5)
 
+    
+    def send_reset(self):
+        print("send reset!")
+        reg = SCA_Register.CTRL_R_ID.value
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 1)
+
 
     def mask_control_reg(self, Reg_ID, mask):
         """
