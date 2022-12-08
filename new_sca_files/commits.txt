@@ -1,7 +1,0 @@
-in sca_controller.py
-
-added Enable_from_Control_Reg class containing channels that can be enabled from 
-control registers. The name of each attribute is the channel to enable and its
-methods are the register it is activated through and the bit that activates it.
-This can replace CRBBits (and CRC and CRD)
-

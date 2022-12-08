@@ -55,6 +55,6 @@ if __name__ == "__main__":
   #test_read_write_three_registers(chippy)
   #test_read_and_reset_SEU(chippy)
   #test_I2C_enable(chippy)
-  test_make_errors(sca_chip)
+  #test_make_errors(sca_chip)
 
 

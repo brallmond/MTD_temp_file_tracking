@@ -152,22 +152,19 @@ class sca_chip(sca_cont):
         payload = payload << self.regs_write[Reg_ID].value.Offset
         print('offset: ', hex(self.regs_write[Reg_ID].value.Offset))
         print('payload: ', hex(payload))
-        rxpayload = sca_chip.write_control_reg(Reg_ID, payload) 
-        return rxpayload
+        return sca_chip.write_control_reg(Reg_ID, payload) 
 
 
     def enable_channel(self, channel_to_enable):
         enabled_channel = eval(f"Enable_from_Control_Reg.{channel_to_enable}.value")
         print(f"enabling channel {channel_to_enable} through register {enabled_channel.Register}")
         data = 1 << enabled_channel.Bit
-        rxpayload = sca_chip.write_control_reg(self, enabled_channel.Register, data)
-        return rxpayload
+        return sca_chip.write_control_reg(self, enabled_channel.Register, data)
 
     
     def enable_ADC(self):
         print("enabling ADC")
-        rxpayload = sca_chip.enable_channel(self, "ENADC")
-        return rxpayload
+        return sca_chip.enable_channel(self, "ENADC")
 
 
     def enable_I2C_channel(self, channel):
@@ -175,37 +172,32 @@ class sca_chip(sca_cont):
         print(f"enabling I2C channel {channel}")
         assert channel > 0 and channel < 16, f"channel must be > 0 and < 16, it is {channel}"
         I2C_to_enable = f"ENI2C{hex(channel)[-1].upper()}"
-        rxpayload = sca_chip.enable_channel(self, I2C_to_enable)
-        return rxpayload
+        return sca_chip.enable_channel(self, I2C_to_enable)
 
 
     def write_control_reg(self, Reg_ID, data_to_write):
         print(f"write {hex(data_to_write)} to control register {Reg_ID}!")
         reg = eval(f"SCA_Register.CTRL_W_{Reg_ID}.value")
         data_to_write = data_to_write << reg.Offset
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, data_to_write, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, data_to_write, self.sca_addr, 0)
 
 
     def read_control_reg(self, Reg_ID):
         print(f"read control register {Reg_ID}!")
         reg = eval(f"SCA_Register.CTRL_R_{Reg_ID}.value")
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
     def reset_SEU(self):
         print("reset SEU!")
         reg  = SCA_Register.CTRL_C_SEU.value
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
     def read_SEU(self):
         print("read SEU!")
         reg  = SCA_Register.CTRL_R_SEU.value
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
         
     def write_gpio_output(self, value):
         print("get ID!")
@@ -213,8 +205,7 @@ class sca_chip(sca_cont):
         print("reading ID")
         reg  = SCA_Register.GPIO_W_DATAOUT.value
         # works with zero or one in data field, but manual specifies data should be one
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, value, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, value, self.sca_addr, 0)
         
     def read_gpio_output(self):
         print("get ID!")
@@ -222,8 +213,7 @@ class sca_chip(sca_cont):
         print("reading ID")
         reg  = SCA_Register.GPIO_R_DATAOUT.value
         # works with zero or one in data field, but manual specifies data should be one
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
         
 
     def get_ID(self): 
@@ -232,16 +222,13 @@ class sca_chip(sca_cont):
         print("reading ID")
         reg  = SCA_Register.CTRL_R_ID.value
         # works with zero or one in data field, but manual specifies data should be one
-        #rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-        #return rxpayload
 
 
     def send_connect(self):
         print("send connect!")
         reg  = SCA_Register.CTRL_W_CRD.value
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 1)
-        return rxpayload
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 1)
 
 
     def check_read_write(self):
@@ -253,8 +240,7 @@ class sca_chip(sca_cont):
         rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, write_data, self.sca_addr, 0)
         print("read data with CTRL_R_CRB")
         reg = SCA_Register.CTRL_R_CRB.value
-        rxpayload = sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-        return rxpayload
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
     def make_command_error(self):
