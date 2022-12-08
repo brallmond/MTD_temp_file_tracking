@@ -183,6 +183,25 @@ class sca_chip(sca_cont):
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
+    def check_error(self, rxpayload):
+        print("checking payload for error flags")
+        assert len(rxpayload) == 2, f"rxpayload size must equal 2, it is {len(rxpayload)}"
+        # error code is in "first" (leftmost) bit of received header
+        header = rxpayload[0]
+        error  = (header & (0xff << 24)) >> 24
+        if error == 0:
+          print("no errors")
+          return 0
+        print(f"error code is : {hex(error)} also known as {bin(error)}")
+        error_binary = bin(error)
+        trim_error_binary = error_binary[2:]
+        length_trim_error_binary = len(trim_error_binary)
+        # make list of indices where error bit is on
+        index_where_on = [length_trim_error_binary-i for i in range(length_trim_error_binary) if trim_error_binary[i] == "1"]
+        for index in index_where_on:
+          print(Indicators.ERROR + ErrorFlags[index] + Indicators.RESET)
+
+
     def send_command_passthrough(self, channel, length, command, data):
         print("sending user command")
         return sca_chip.send_command(self, channel, length, command, data, self.sca_addr, 0)
@@ -204,8 +223,8 @@ class sca_chip(sca_cont):
         reg  = SCA_Register.CTRL_R_SEU.value
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
-        
-    def write_gpio_output(self, value):
+
+     def write_gpio_output(self, value):
         print("get ID!")
         sca_chip.enable_ADC(self)
         print("reading ID")
@@ -213,7 +232,7 @@ class sca_chip(sca_cont):
         # works with zero or one in data field, but manual specifies data should be one
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, value, self.sca_addr, 0)
 
-        
+       
     def read_gpio_output(self):
         print("get ID!")
         sca_chip.enable_ADC(self)
@@ -264,16 +283,4 @@ class sca_chip(sca_cont):
         return sca_chip.send_command(self, 0x13, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
-    def check_error(self, rxpayload):
-        print("checking payload for error flags")
-        assert len(rxpayload) == 2, f"rxpayload size must equal 2, it is {len(rxpayload)}"
-        header = rxpayload[0]
-        #data   = rxpayload[1]
-        err  = (header & (0xff << 24)) >> 24
-        print(f"error code is : {hex(err)}")
-        #leng = (header & (0xff << 16)) >> 16
-        #ch   = (header & (0xff << 8))  >> 8
-        #com  = header &  0xff
-        #print("\t--Received (rx)") 
-        #print("\t err : leng : ch : Tr.ID : data")
-        #print(f"\t {hex(err)} : {hex(leng)} : {hex(ch)} : {hex(com)} : {hex(data)}")
+

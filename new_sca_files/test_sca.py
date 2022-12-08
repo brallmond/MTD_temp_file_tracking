@@ -42,8 +42,28 @@ def test_I2C_enable(sca_chip):
 
 
 def test_make_errors(sca_chip):
+  # tested, works
+  print(Indicators.INFO + 
+        "verify the chip throws no errors for a normal operation" + 
+        Indicators.RESET)
+  test_on(sca_chip)
+  print(Indicators.WARNING + 
+        "now purposely making errors" + 
+        Indicators.RESET)
   sca_chip.make_command_error()
   sca_chip.make_channel_error()
+
+
+def test_read_errors(sca_chip):
+  # tested, works
+  test_on(sca_chip)
+  error = sca_chip.make_channel_error()
+  sca_chip.check_error(error)
+  error = sca_chip.make_command_error()
+  sca_chip.check_error(error)
+  no_error = sca_chip.enable_I2C_channel(1)
+  sca_chip.check_error(no_error)
+
 
 if __name__ == "__main__":
 
@@ -55,6 +75,7 @@ if __name__ == "__main__":
   #test_read_write_three_registers(chippy)
   #test_read_and_reset_SEU(chippy)
   #test_I2C_enable(chippy)
-  test_make_errors(chippy)
+  #test_make_errors(chippy)
+  test_read_errors(chippy)
 
 

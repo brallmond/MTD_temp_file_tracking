@@ -1,6 +1,13 @@
 from enum import Enum, IntEnum, unique
 from collections import namedtuple
 
+class Indicators:
+    INFO = '\033[92m'
+    WARNING = '\033[93m'
+    ERROR = '\033[91m'
+    RESET = '\033[0m'
+
+
 Command_properties_type = namedtuple('Command_properties_type',
                                      'Channel CMD Length, Operation Offset Data Description')
 I2C_configuration_registers_properties_type = namedtuple('I2C_configuration_registers_properties_type',
@@ -16,10 +23,15 @@ class Operation(IntEnum):
     Write = 1
     ReadWrite = 2
 
-class ErrorFlags(Enum):
-    { 0 : "Generic error flag",
-      1 : "Invalid channel request",} 
-
+ErrorFlags = { 0 : "Generic error flag",
+               1 : "Invalid channel request",
+               2 : "Invalid command request",
+               3 : "Invalid transaction number request",
+               4 : "Invalid length",
+               5 : "Channel not enabled",
+               6 : "Channel currently busy",
+               7 : "Command in treatment"} 
+         
 class Flag(IntEnum):
     """
     Calls Return
