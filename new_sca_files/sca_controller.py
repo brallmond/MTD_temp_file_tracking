@@ -190,7 +190,7 @@ class sca_chip(sca_cont):
         header = rxpayload[0]
         error  = (header & (0xff << 24)) >> 24
         if error == 0:
-          print("no errors")
+          print(CMDLINECOLORS.PASS + "No errors!" + CMDLINECOLORS.RESET)
           return 0
         print(f"error code is : {hex(error)} also known as {bin(error)}")
         error_binary = bin(error)

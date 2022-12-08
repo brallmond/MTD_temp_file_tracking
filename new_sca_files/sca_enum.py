@@ -1,10 +1,11 @@
 from enum import Enum, IntEnum, unique
 from collections import namedtuple
 
-class Indicators:
+class CMDLINECOLOR:
+    ERROR = '\033[91m'
     INFO = '\033[92m'
     WARNING = '\033[93m'
-    ERROR = '\033[91m'
+    PASS = '\033[94m'
     RESET = '\033[0m'
 
 
@@ -23,6 +24,7 @@ class Operation(IntEnum):
     Write = 1
     ReadWrite = 2
 
+#        BIT NUM : "ERROR MESSAGE"
 ErrorFlags = { 0 : "Generic error flag",
                1 : "Invalid channel request",
                2 : "Invalid command request",
