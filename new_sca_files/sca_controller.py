@@ -197,6 +197,7 @@ class sca_chip(sca_cont):
         trim_error_binary = error_binary[2:]
         length_trim_error_binary = len(trim_error_binary)
         # make list of indices where error bit is on
+        index_where_on = []
         index_where_on = [length_trim_error_binary-i for i in range(length_trim_error_binary) if trim_error_binary[i] == "1"]
         for index in index_where_on:
           print(Indicators.ERROR + ErrorFlags[index] + Indicators.RESET)
@@ -253,20 +254,4 @@ class sca_chip(sca_cont):
         print("send connect!")
         reg  = SCA_Register.CTRL_W_CRD.value
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 1)
-
-
-    def make_command_error(self):
-        print("make error 0x4 = 0b0000 0100!")
-        print("supply command to read SCA ID for V1 of the chip")
-        reg  = SCA_Register.CTRL_R_ID.value
-        return sca_chip.send_command(self, reg.Channel, reg.Length, 0x91, reg.Data, self.sca_addr, 0)
-
-
-    def make_channel_error(self):
-        print("make error 0x20 = 0b0010 0000!")
-        print("supply channel 0x13 to SCA ID command instead of 0x14")
-        reg  = SCA_Register.CTRL_R_ID.value
-        return sca_chip.send_command(self, 0x13, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-
-
 
