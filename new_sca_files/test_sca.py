@@ -27,7 +27,7 @@ def test_read_and_reset_SEU(sca_chip):
   return sca_chip.reset_SEU() 
 
 
-def test_I2C_enable(sca_chip):
+def test_I2C_enable_all(sca_chip):
   # tested, works
   sca_chip.send_connect()
   for i in range(1, 16):
@@ -71,10 +71,31 @@ def test_I2C_single_enable(sca_chip, user_I2C_channel=0):
   # tested, works
   return sca_chip.enable_I2C_channel(user_I2C_channel)
 
+
 def test_I2C_write_read_control_register(sca_chip, user_I2C_channel=0):
   # tested, works
   sca_chip.write_I2C_control_reg(user_I2C_channel, user_nbytes=1, user_frequency="400kHz")
   return sca_chip.read_I2C_control_reg(user_I2C_channel)
+
+
+def test_full_I2C(sca_chip):
+  I2C_channel_X = 0
+  I2C_channel_Y = 1
+  I2C_channel_Z = 15
+  standard_frequency = "400kHz"
+
+  sca_chip.enable_I2C_channel(I2C_channel_X)
+  error_status = test_I2C_write_read_control_register(sca_chip, I2C_channel_X)
+  sca_chip.check_error(error_status)
+
+  sca_chip.enable_I2C_channel(I2C_channel_Y)
+  error_status = test_I2C_write_read_control_register(sca_chip, I2C_channel_Y)
+  sca_chip.check_error(error_status)
+
+  sca_chip.enable_I2C_channel(I2C_channel_Z)
+  return test_I2C_write_read_control_register(sca_chip, I2C_channel_Z)
+  #error_status = test_I2C_write_read_control_register(sca_chip, I2C_channel_Z)
+  #sca_chip.check_error(error_status)
 
 
 if __name__ == "__main__":
@@ -86,8 +107,8 @@ if __name__ == "__main__":
   list_of_tests = [ 
     test_read_ID,
     test_write_read_three_registers,
-    test_read_and_reset_SEU, #broken!
-    test_I2C_enable,
+    test_read_and_reset_SEU, #broken! but never implemented in KCU105 anyways
+    test_I2C_enable_all,
     test_make_command_error,
     test_make_channel_error,
     #test_make_length_error,
@@ -109,6 +130,7 @@ if __name__ == "__main__":
   test_I2C = [
     test_I2C_single_enable,
     test_I2C_write_read_control_register,
+    test_full_I2C,
   ]
 
 
