@@ -151,8 +151,8 @@ class sca_chip(sca_cont):
 
 
     def set_nbytes(self, user_nbytes):
-        if (nbytes >= 16 or nbytes < 1): raise "data out of bounds, nbytes > 16 or < 1"
-        return hex(nbytes)
+        if (user_nbytes >= 16 or user_nbytes < 1): raise "data out of bounds, user_nbytes > 16 or < 1"
+        return hex(user_nbytes) # hexes are string objects in python so this function isn't very useful
 
 
     def mask_control_reg(self, Reg_ID, mask):
@@ -178,25 +178,28 @@ class sca_chip(sca_cont):
         return sca_chip.write_control_reg(self, enabled_channel.Register, data)
 
     
-    def enable_I2C_channel(self, channel):
+    def enable_I2C_channel(self, user_I2C_channel):
         # expects an integer from 0 to 15
-        print(f"enabling I2C channel {channel}")
-        assert channel >= 0 and channel < 16, f"channel must be >= 0 and < 16, it is {channel}"
-        I2C_to_enable = f"ENI2C{hex(channel)[-1].upper()}"
-        return sca_chip.enable_channel(self, I2C_to_enable)
+        print(f"enabling I2C channel {user_I2C_channel}")
+        assert user_I2C_channel >= 0 and user_I2C_channel < 16, f"channel must be >= 0 and < 16, it is {user_I2C_channel}"
+        I2C_channel = f"ENI2C{hex(user_I2C_channel)[-1].upper()}"
+        return sca_chip.enable_channel(self, I2C_channel)
 
 
-    def write_I2C_contrl_reg(self, I2C_channel, user_nbytes, user_frequency):
+    def write_I2C_control_reg(self, user_I2C_channel, user_nbytes, user_frequency):
         reg = SCA_Register.I2C_W_CTRL.value
-        data_to_write = hex((0 | (set_nbytes(user_nbytes) << 2) | set_frequency(user_frequency)) << reg.Offset)
-        channel.....
-        print(f"data to write to I2C control : {data_to_write} or {bin(int(data_to_write, 16))}")
-        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, data_to_write, self.sca_addr, 0)
+        data_to_write = ((0 | user_nbytes << 2) | sca_chip.set_frequency(self, user_frequency)) << reg.Offset
+        print(f"writing to control register of I2C channel {user_I2C_channel}!")
+        print(f"data is: {data_to_write} or {bin(data_to_write)} aka {hex(data_to_write)}")
+        I2C_channel = channel_id(f"I2C{hex(user_I2C_channel)[-1].upper()}")
+        return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, data_to_write, self.sca_addr, 0)
 
 
-    def read_I2C_contrl_reg(self, I2C_channel):
+    def read_I2C_control_reg(self, user_I2C_channel):
         reg = SCA_Register.I2C_R_CTRL.value
-        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
+        I2C_channel = channel_id(f"I2C{hex(user_I2C_channel)[-1].upper()}")
+        print(f"reading control register of I2C channel {user_I2C_channel}!")
+        return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
     def write_control_reg(self, Reg_ID, data_to_write):

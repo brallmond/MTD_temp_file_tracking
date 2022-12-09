@@ -7,7 +7,7 @@ def test_read_ID(sca_chip):
   sca_chip.enable_ADC()
   return sca_chip.read_ID()
 
-def test_read_write_three_registers(sca_chip):
+def test_write_read_three_registers(sca_chip):
   # tested, works
   sca_chip.send_connect()
   sca_chip.write_control_reg("CRB", randint(1,255))
@@ -60,11 +60,21 @@ def test_make_length_error(sca_chip):
   return sca_chip.send_command_passthrough(0x13, reg.Length, reg.CMD, reg.Data)
 
 
-def test_GPIO_read_write(sca_chip):
+def test_GPIO_write_read(sca_chip):
   # tested (once), works
   sca_chip.send_connect()
   sca_chip.write_GPIO(17)
   return sca_chip.read_GPIO()
+
+
+def test_I2C_single_enable(sca_chip, user_I2C_channel=0):
+  # tested, works
+  return sca_chip.enable_I2C_channel(user_I2C_channel)
+
+def test_I2C_write_read_control_register(sca_chip, user_I2C_channel=0):
+  # tested, works
+  sca_chip.write_I2C_control_reg(user_I2C_channel, user_nbytes=1, user_frequency="400kHz")
+  return sca_chip.read_I2C_control_reg(user_I2C_channel)
 
 
 if __name__ == "__main__":
@@ -75,13 +85,13 @@ if __name__ == "__main__":
 
   list_of_tests = [ 
     test_read_ID,
-    test_read_write_three_registers,
+    test_write_read_three_registers,
     test_read_and_reset_SEU, #broken!
     test_I2C_enable,
     test_make_command_error,
     test_make_channel_error,
     #test_make_length_error,
-    test_GPIO_read_write,
+    test_GPIO_write_read,
   ]
 
   error_tests = [
@@ -91,15 +101,21 @@ if __name__ == "__main__":
     #test_make_length_error, #unfinished!
   ]
 
-
   test_on = [
     test_read_ID,
-    test_read_write_three_registers,
+    test_write_read_three_registers,
   ]
+
+  test_I2C = [
+    test_I2C_single_enable,
+    test_I2C_write_read_control_register,
+  ]
+
 
   list_to_test = list_of_tests # "make errors" tests don't work in this list
   list_to_test = test_on
   list_to_test = error_tests
+  list_to_test = test_I2C
 
   for i,test in enumerate(list_to_test):
     print(CMDLINECOLOR.INFO + 
