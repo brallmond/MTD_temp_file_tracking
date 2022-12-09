@@ -33,6 +33,11 @@ ErrorFlags = { 0 : "Generic error flag",
                5 : "Channel not enabled",
                6 : "Channel currently busy",
                7 : "Command in treatment"} 
+
+Frequency = { "100kHz" : 0b00,
+              "200kHz" : 0b01,
+              "400kHz" : 0b10,
+              "1MHz"   : 0b11}
          
 class Flag(IntEnum):
     """
@@ -51,7 +56,8 @@ class Flag(IntEnum):
 # Not unique Enum
 class Channel(Enum):
     """
-
+    From page 17 of GBT-SCA user manual.
+    Technically all SCA_Register.Channels should refer to here instead of being hardcoded
     """
 
     CTRL = 0x00  # SCA configuration registers
