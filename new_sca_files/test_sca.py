@@ -7,6 +7,7 @@ def test_read_ID(sca_chip):
   sca_chip.enable_ADC()
   return sca_chip.read_ID()
 
+
 def test_write_read_three_registers(sca_chip):
   # tested, works
   sca_chip.send_connect()
@@ -74,11 +75,14 @@ def test_I2C_single_enable(sca_chip, user_I2C_channel=0):
 
 def test_I2C_write_read_control_register(sca_chip, user_I2C_channel=0):
   # tested, works
-  sca_chip.write_I2C_control_reg(user_I2C_channel, user_nbytes=1, user_frequency="400kHz")
+  nbytes = 1
+  frequency = "400kHz"
+  print(f"configuring I2C channel to {nbytes} bytes at frequency {frequency}")
+  sca_chip.write_I2C_control_reg(user_I2C_channel, user_nbytes=nbytes, user_frequency=frequency)
   return sca_chip.read_I2C_control_reg(user_I2C_channel)
 
 
-def test_full_I2C(sca_chip):
+def test_I2C_full(sca_chip):
   I2C_channel_X = 0
   I2C_channel_Y = 1
   I2C_channel_Z = 15
@@ -94,6 +98,9 @@ def test_full_I2C(sca_chip):
 
   sca_chip.enable_I2C_channel(I2C_channel_Z)
   return test_I2C_write_read_control_register(sca_chip, I2C_channel_Z)
+  # every command needs a return statment due to error-checking in the loop that runs test
+  # breaks the nice structure of this piece of code...
+  # will look into fixing if it becomes cumbersome
   #error_status = test_I2C_write_read_control_register(sca_chip, I2C_channel_Z)
   #sca_chip.check_error(error_status)
 
@@ -102,7 +109,7 @@ if __name__ == "__main__":
 
   chippy = sca_chip()
   
-  print("Hi, I'm chippy, your SCA chip! I'm gonna run some tests now...")
+  print("Hi, I'm chippy, your SCA chip! My chip ID is 0x4673! I'm gonna run some tests now...")
 
   list_of_tests = [ 
     test_read_ID,
@@ -113,6 +120,9 @@ if __name__ == "__main__":
     test_make_channel_error,
     #test_make_length_error,
     test_GPIO_write_read,
+    test_I2C_single_enable,
+    test_I2C_write_read_control_register,
+    test_I2C_full,
   ]
 
   error_tests = [
@@ -130,14 +140,22 @@ if __name__ == "__main__":
   test_I2C = [
     test_I2C_single_enable,
     test_I2C_write_read_control_register,
-    test_full_I2C,
+    test_I2C_full,
   ]
 
+  demo_functionality = [
+    test_read_ID,
+    test_write_read_three_registers,
+    test_GPIO_write_read,
+    test_I2C_full,
+  ]
 
+  # the list of commands assigned last to "list_to_test" will be run by the loop at the bottom of this code
   list_to_test = list_of_tests # "make errors" tests don't work in this list
+  list_to_test = test_I2C
   list_to_test = test_on
   list_to_test = error_tests
-  list_to_test = test_I2C
+  list_to_test = demo_functionality
 
   for i,test in enumerate(list_to_test):
     print(CMDLINECOLOR.INFO + 
@@ -146,4 +164,6 @@ if __name__ == "__main__":
           CMDLINECOLOR.RESET)
     rxpayload = test(chippy)
     chippy.check_error(rxpayload)
+
+
 
