@@ -214,10 +214,10 @@ class sca_chip(sca_cont):
         return sca_chip.send_command(self, channel, length, command, data, self.sca_addr, 0)
 
 
-    def reset_SEU(self):
-        print("reset SEU!")
-        reg  = SCA_Register.CTRL_C_SEU.value
-        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
+    def send_connect(self):
+        print("send connect!")
+        reg  = SCA_Register.CTRL_W_CRD.value
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 1)
 
 
     def enable_ADC(self):
@@ -233,6 +233,12 @@ class sca_chip(sca_cont):
     def read_SEU(self):
         print("read SEU!")
         reg  = SCA_Register.CTRL_R_SEU.value
+        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
+
+
+    def reset_SEU(self):
+        print("reset SEU!")
+        reg  = SCA_Register.CTRL_C_SEU.value
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
@@ -255,9 +261,4 @@ class sca_chip(sca_cont):
         # works with zero or one in data field, but manual specifies data should be one
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
-
-    def send_connect(self):
-        print("send connect!")
-        reg  = SCA_Register.CTRL_W_CRD.value
-        return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 1)
 

@@ -80,7 +80,7 @@ if __name__ == "__main__":
     test_I2C_enable,
     test_make_command_error,
     test_make_channel_error,
-    test_make_length_error,
+    #test_make_length_error,
     test_GPIO_read_write,
   ]
 
@@ -91,9 +91,6 @@ if __name__ == "__main__":
     #test_make_length_error, #unfinished!
   ]
 
-  SEU_test = [
-    test_read_and_reset_SEU,
-  ]
 
   test_on = [
     test_read_ID,
@@ -101,14 +98,13 @@ if __name__ == "__main__":
   ]
 
   list_to_test = list_of_tests # "make errors" tests don't work in this list
-  list_to_test = SEU_test
   list_to_test = test_on
   list_to_test = error_tests
 
   for i,test in enumerate(list_to_test):
     print(CMDLINECOLOR.INFO + 
           f"########## TEST {i} ##########" + '\n' +
-          f"### {test} ###" + 
+          f"Name: {test} " + 
           CMDLINECOLOR.RESET)
     rxpayload = test(chippy)
     chippy.check_error(rxpayload)
