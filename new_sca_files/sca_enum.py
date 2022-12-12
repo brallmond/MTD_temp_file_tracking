@@ -144,11 +144,34 @@ class StatusRegisterBits(IntEnum):
     # This bit is set/reset at the end of each I2C transaction.
 
 
+#class I2CWriteDataBytes(IntEnum):
+class I2CDataBytesOffset(IntEnum):
+    """
+    I2C Channel Write Data Offsets
+    """
+    BYTE0 = 24
+    BYTE1 = 16
+    BYTE2 = 8
+    BYTE3 = 0
+    BYTE4 = 24
+    BYTE5 = 16
+    BYTE6 = 8
+    BYTE7 = 0
+    BYTE8 = 24
+    BYTE9 = 16
+    BYTE10 = 8
+    BYTE11 = 0
+    BYTE12 = 24
+    BYTE13 = 16
+    BYTE14 = 8
+    BYTE15 = 0
+
+
+
 @unique
 class DataRegisterBits(IntEnum):
     """
     I2C channel DATA register
-
     """
     BYTE0 = 0
     BYTE1 = 8
