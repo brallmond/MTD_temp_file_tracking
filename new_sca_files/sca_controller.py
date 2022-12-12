@@ -179,10 +179,9 @@ class sca_chip(sca_cont):
 
     
     def enable_I2C_channel(self, user_I2C_channel):
-        # expects an integer from 0 to 15
         print(f"enabling I2C channel {user_I2C_channel}")
-        assert user_I2C_channel >= 0 and user_I2C_channel < 16, f"channel must be >= 0 and < 16, it is {user_I2C_channel}"
-        I2C_channel = f"ENI2C{hex(user_I2C_channel)[-1].upper()}"
+        temp = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel)
+        I2C_channel = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel, enabling_channel=True)
         return sca_chip.enable_channel(self, I2C_channel)
 
 
@@ -191,14 +190,14 @@ class sca_chip(sca_cont):
         data_to_write = ((0 | user_nbytes << 2) | sca_chip.set_frequency(self, user_frequency)) << reg.Offset
         print(f"writing to control register of I2C channel {user_I2C_channel}!")
         print(f"data is: {data_to_write} or {bin(data_to_write)} aka {hex(data_to_write)}")
-        I2C_channel = channel_id(f"I2C{hex(user_I2C_channel)[-1].upper()}")
+        I2C_channel = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel)
         return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, data_to_write, self.sca_addr, 0)
 
 
     def read_I2C_control_reg(self, user_I2C_channel):
-        reg = SCA_Register.I2C_R_CTRL.value
-        I2C_channel = channel_id(f"I2C{hex(user_I2C_channel)[-1].upper()}")
         print(f"reading control register of I2C channel {user_I2C_channel}!")
+        reg = SCA_Register.I2C_R_CTRL.value
+        I2C_channel = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel)
         return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
@@ -288,12 +287,20 @@ class sca_chip(sca_cont):
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
-    def read_I2C_status_reg(self, user_I2C_channel):
-        # expects an integer from 0 to 15
-        print(f"read status of I2C channel {user_I2C_channel}!")
+    def check_and_convert_user_I2C_channel(self, user_I2C_channel, enabling_channel=False):
+        # could extend to have 0-16 and 0-f reading
+        assert type(user_I2C_channel) == int, f"channel must be of type int, its type is {type(user_I2C_channel)}"
         assert user_I2C_channel >= 0 and user_I2C_channel < 16, f"channel must be >= 0 and < 16, it is {user_I2C_channel}"
-        I2C_channel = channel_id(f"I2C{hex(user_I2C_channel)[-1].upper()}")
+        if enabling_channel == True:
+          return f"ENI2C{hex(user_I2C_channel)[-1].upper()}"
+        else:
+          return channel_id(f"I2C{hex(user_I2C_channel)[-1].upper()}")
+
+
+    def read_I2C_status_reg(self, user_I2C_channel):
+        print(f"read status of I2C channel {user_I2C_channel}!")
         reg = SCA_Register.I2C_R_STR.value
+        I2C_channel = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel)
         return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 

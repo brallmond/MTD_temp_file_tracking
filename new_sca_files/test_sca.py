@@ -109,7 +109,7 @@ def test_I2C_full(sca_chip):
 
 def test_I2C_status(sca_chip):
   # tested, works
-  channel = 4
+  channel = 2
   sca_chip.enable_I2C_channel(channel)
   return sca_chip.read_I2C_status_reg(channel)
   
@@ -166,12 +166,12 @@ if __name__ == "__main__":
 
   # the list of commands assigned last to "list_to_test" will be run by the loop at the bottom of this code
   list_to_test = list_of_tests # "make errors" tests don't work in this list
-  list_to_test = test_I2C
   list_to_test = test_on
   list_to_test = error_tests
   list_to_test = demo_functionality
 
   list_to_test = test_I2C_write_read
+  list_to_test = test_I2C
 
   for i,test in enumerate(list_to_test):
     print(CMDLINECOLOR.INFO + 
