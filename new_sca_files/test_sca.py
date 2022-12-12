@@ -168,10 +168,9 @@ if __name__ == "__main__":
   list_to_test = list_of_tests # "make errors" tests don't work in this list
   list_to_test = test_on
   list_to_test = error_tests
-  list_to_test = demo_functionality
-
-  list_to_test = test_I2C_write_read
   list_to_test = test_I2C
+  list_to_test = test_I2C_write_read
+  list_to_test = demo_functionality
 
   for i,test in enumerate(list_to_test):
     print(CMDLINECOLOR.INFO + 
