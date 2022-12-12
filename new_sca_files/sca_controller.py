@@ -288,3 +288,15 @@ class sca_chip(sca_cont):
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
+    def read_I2C_status_reg(self, user_I2C_channel):
+        # expects an integer from 0 to 15
+        print(f"read status of I2C channel {user_I2C_channel}!")
+        assert user_I2C_channel >= 0 and user_I2C_channel < 16, f"channel must be >= 0 and < 16, it is {user_I2C_channel}"
+        I2C_channel = channel_id(f"I2C{hex(user_I2C_channel)[-1].upper()}")
+        reg = SCA_Register.I2C_R_STR.value
+        return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
+
+
+
+
+
