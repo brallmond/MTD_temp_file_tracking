@@ -177,6 +177,16 @@ class sca_chip(sca_cont):
         data = 1 << enabled_channel.Bit
         return sca_chip.write_control_reg(self, enabled_channel.Register, data)
 
+
+    def check_and_convert_user_I2C_channel(self, user_I2C_channel, enabling_channel=False):
+        # could extend to have 0-16 and 0-f reading
+        assert type(user_I2C_channel) == int, f"channel must be of type int, its type is {type(user_I2C_channel)}"
+        assert user_I2C_channel >= 0 and user_I2C_channel < 16, f"channel must be >= 0 and < 16, it is {user_I2C_channel}"
+        if enabling_channel == True:
+          return f"ENI2C{hex(user_I2C_channel)[-1].upper()}"
+        else:
+          return channel_id(f"I2C{hex(user_I2C_channel)[-1].upper()}")
+
     
     def enable_I2C_channel(self, user_I2C_channel):
         print(f"enabling I2C channel {user_I2C_channel}")
@@ -200,6 +210,78 @@ class sca_chip(sca_cont):
         I2C_channel = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel)
         return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
+
+    def read_I2C_status_reg(self, user_I2C_channel):
+        print(f"read status of I2C channel {user_I2C_channel}!")
+        reg = SCA_Register.I2C_R_STR.value
+        I2C_channel = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel)
+        return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
+
+   
+    def read_I2C_7b(self, user_I2C_channel, address_to_read):
+        print(f"start 7 bit read via I2C channel {user_I2C_channel} to device at {address_to_write}")
+        reg = SCA_Register.I2C_M_7B_R.value
+        I2C_channel = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel)
+        # check that the address is given as hex or int, not as a string
+        return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, address_to_read, self.sca_addr, 0)
+
+
+    def write_I2C_7b(self, user_I2C_channel, address_to_write):
+        print(f"start 7 bit write via I2C channel {user_I2C_channel} to device at {address_to_write}")
+        reg = SCA_Register.I2C_M_7B_W.value
+        I2C_channel = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel)
+        # check that the address is given as hex or int, not as a string
+        return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, address_to_write, self.sca_addr, 0)
+
+######
+ 
+    def read_I2C_data_reg(self, user_I2C_channel, nbytes):
+        # untested
+        print(f"read data register from channel {user_I2C_channel}")
+        for byte in range(nbytes):
+            enum_byte = f'BYTE{byte}'
+            offset = I2CDataBytesOffset.enum_byte.value
+            if 0 <= byte < 4:
+                reg = SCA_Register.I2C_R_DATA3.value
+            elif 4 <= byte < 8:
+                reg = SCA_Register.I2C_R_DATA2.value
+            elif 8 <= byte < 12: 
+                reg = SCA_Register.I2C_R_DATA1.value
+            elif 12 <= byte < 16:
+                reg = SCA_Register.I2C_R_DATA0.value
+            #reg_data_packet
+
+
+    def write_I2C_data_reg(self, user_I2C_channel, nbytes, array_data_bytes):
+        # untested
+        print(f"write to data register of I2C channel {user_I2C_channel}!")
+        assert nbytes == len(array_data_bytes), 'nbytes must equal len(array_data_bytes)'
+        reg_data_packet = 0
+        for byte in range(nbytes):
+            enum_byte = f'BYTE{byte}'
+            offset = I2CDataBytesOffset.enum_byte.value
+            if 0 <= byte < 4:
+                reg = SCA_Register.I2C_W_Data0.value 
+            elif 4  <= byte < 8:
+                reg = SCA_Register.I2C_W_Data1.value
+            elif 8  <= byte < 12:
+                reg = SCA_Register.I2C_W_Data2.value
+            elif 12 <= byte < 16:
+                reg = SCA_Register.I2C_W_Data3.value
+            reg_data_packet += array_data_bytes[byte] << offset
+
+          # sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, reg_data_packet?, self.sca_addr, 0)
+          # what do I return? 
+
+    #def check_I2C_data_reg_byte_and_send(self, user_I2C_channel)?
+          # if we move to a new register, send the previous data_packet and reset it
+          #if byte != 0 and byte % 4 == 0: 
+          #    send_command(reg, reg_data_packet)
+          #    reg_data_packet = 0
+          # if its the final byte and the register has not been sent, send the register
+          #elif (byte == nbytes - 1):
+          #    send_command(reg, reg_data_packet)
+          #    reg_data_packet = 0
 
     def write_control_reg(self, Reg_ID, data_to_write):
         print(f"write {hex(data_to_write)} to control register {Reg_ID}!")
@@ -284,24 +366,8 @@ class sca_chip(sca_cont):
         print("read ID!")
         reg = SCA_Register.CTRL_R_ID.value        
         # works with zero or one in data field, but manual specifies data should be one
+        print(reg.CMD, type(reg.CMD))
         return sca_chip.send_command(self, reg.Channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
-
-
-    def check_and_convert_user_I2C_channel(self, user_I2C_channel, enabling_channel=False):
-        # could extend to have 0-16 and 0-f reading
-        assert type(user_I2C_channel) == int, f"channel must be of type int, its type is {type(user_I2C_channel)}"
-        assert user_I2C_channel >= 0 and user_I2C_channel < 16, f"channel must be >= 0 and < 16, it is {user_I2C_channel}"
-        if enabling_channel == True:
-          return f"ENI2C{hex(user_I2C_channel)[-1].upper()}"
-        else:
-          return channel_id(f"I2C{hex(user_I2C_channel)[-1].upper()}")
-
-
-    def read_I2C_status_reg(self, user_I2C_channel):
-        print(f"read status of I2C channel {user_I2C_channel}!")
-        reg = SCA_Register.I2C_R_STR.value
-        I2C_channel = sca_chip.check_and_convert_user_I2C_channel(self, user_I2C_channel)
-        return sca_chip.send_command(self, I2C_channel, reg.Length, reg.CMD, reg.Data, self.sca_addr, 0)
 
 
 
